@@ -1,16 +1,16 @@
-name: Build lineage-20-samsung_exynos9820-s10-and-note10-series-KernelSU-kernel
+
+name: Build SM-G9730-onui-3.1-R-Kernel
 on:
   workflow_dispatch:
   schedule:
       # Run once a week on Sunday at midnight. See http://crontab.guru
       - cron: '0 6 */3 * *'
-    push:
+  push:
     branches:
-     - HEAD
-    pull_request:
-    branches:
-     - HEAD
-
+      - HEAD
+  pull_request:
+      branches:
+      - HEAD
 jobs:
   build:
     runs-on: ubuntu-20.04
