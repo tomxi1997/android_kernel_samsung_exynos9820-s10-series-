@@ -1,5 +1,5 @@
 name: Build lineage-20-samsung_exynos9820-s10-and-note10-series-KernelSU-kernel
-on:
+ on:
   workflow_dispatch:
   schedule:
       # Run once a week on Sunday at midnight. See http://crontab.guru
