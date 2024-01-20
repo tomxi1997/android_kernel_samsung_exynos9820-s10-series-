@@ -1,0 +1,113 @@
+name: Build lineage-20-samsung_exynos9820-s10-and-note10-series-KernelSU-kernel
+on:
+  workflow_dispatch:
+  schedule:
+      # Run once a week on Sunday at midnight. See http://crontab.guru
+      - cron: '0 6 */3 * *'
+    #push:
+    #branches:
+    # - HEAD
+    #pull_request:
+    # branches:
+    # - HEAD
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_MAXSIZE: "2G"
+      CCACHE_HARDLINK: "true"
+      #KERNEL_DEFCONFIG: "afaneh_beyond1qlte_defconfig"
+      KERNEL_CMDLINE: "ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- LLVM=1 LLVM_IAS=1 O=out"
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        submodules: 'true'
+        fetch-depth: 100
+
+    - name: Set up ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update -y 
+        sudo apt install binutils make python3 libssl-dev build-essential bc  bison flex unzip libssl-dev ca-certificates xz-utils mkbootimg cpio device-tree-compiler git git-lfs -y
+        cd /root/
+        mkdir /root/clang-aosp 
+        wget -O clang.tar.gz https://kali.download/nethunter-images/toolchains/clang-r416183b1.tar.gz
+        tar -C /root/clang-aosp/ -xf clang.tar.gz
+        wget https://kali.download/nethunter-images/toolchains/google_aarch64-4.9.tar.xz
+        wget https://kali.download/nethunter-images/toolchains/google_armhf-4.9.tar.xz
+        tar -xf google_aarch64-4.9.tar.xz
+        tar -xf google_armhf-4.9.tar.xz
+        rm *.xz && rm *.gz
+        git clone https://github.com/tomxi1997/AnyKernel3.git --depth=1
+        rm -rf AnyKernel3/.git
+    
+    - name: GetTime
+      id: get_time
+      run: |
+        echo "TIME=$(TZ=UTC-8 date +%m%d%H%M )" >> $GITHUB_OUTPUT
+
+    - name: Build exynos9820-S10e Kernel-SU
+      run: |
+       cd /root
+       git clone https://github.com/tomxi1997/android_kernel_samsung_exynos9820-s10-series-.git --depth=1 exynos9820 
+       cd exynos9820 && mkdir -p out
+       export PATH=/root/clang-aosp/bin:/root/aarch64-4.9/bin:/root/armhf-4.9/bin:$PATH
+       export ARCH=arm64
+       export SUBARCH=arm64
+       export GKI_ROOT=$(pwd)
+       export DRIVER_DIR="$GKI_ROOT/drivers"
+       export DRIVER_MAKEFILE=$DRIVER_DIR/Makefile
+       git clone -b main https://github.com/tiann/KernelSU.git KernelSU
+       ln -sf "$GKI_ROOT/KernelSU/kernel" "$DRIVER_DIR/kernelsu"
+       sed -i '$a\obj-y += kernelsu/' "$DRIVER_MAKEFILE"
+       make $KERNEL_CMDLINE exynos9820-beyond0lte_defconfig CC="ccache clang"
+       make $KERNEL_CMDLINE CC="ccache clang" -j$(nproc --all)
+       cp out/arch/arm64/boot/Image.gz AnyKernel3
+
+    - name: Upload Kernel 
+      uses: actions/upload-artifact@v3
+      with:
+        name: Kernel-lineage-20_s10e_exynos9820-beyond0lte-kernelsu-${{ steps.get_time.outputs.TIME }}
+        path: "/root/AnyKernel3/*"
+
+    - name: Build exynos9820-S10 Kernel-SU
+      run: |
+        cd /root/exynos9820
+        make clean && make mrproper && rm -rf out && mkdir -p out
+        make $KERNEL_CMDLINE exynos9820-beyond1lte_defconfig CC="ccache clang"
+        make $KERNEL_CMDLINE CC="ccache clang" -j$(nproc --all)
+        rm -rf /root/AnyKernel3/Image.gz
+        cp out/arch/arm64/boot/Image.gz /root/AnyKernel3
+        
+        
+      
+
+    - name: Upload Kernel
+      uses: actions/upload-artifact@v3
+      with:
+        name: Kernel-lineage-20_s10_exynos9820-beyond1lte-kernelsu-${{ steps.get_time.outputs.TIME }}
+        path: "/root/AnyKernel3/*"
+
+
+
+    - name: Build exynos9820-S10+ Kernel-SU
+      run: |
+        cd /root/exynos9820
+        make clean && make mrproper && rm -rf out && mkdir -p out
+        make $KERNEL_CMDLINE exynos9820-beyond2lte_defconfig CC="ccache clang"
+        make $KERNEL_CMDLINE CC="ccache clang" -j$(nproc --all)
+        rm -rf /root/AnyKernel3/Image.gz
+        cp out/arch/arm64/boot/Image.gz /root/AnyKernel3
+
+
+    - name: Upload Kernel
+      uses: actions/upload-artifact@v3
+      with:
+        name: Kernel-lineage-20_s10+_exynos9820-beyond2lte-kernelsu-${{ steps.get_time.outputs.TIME }}
+        path: "/root/AnyKernel3/*"
