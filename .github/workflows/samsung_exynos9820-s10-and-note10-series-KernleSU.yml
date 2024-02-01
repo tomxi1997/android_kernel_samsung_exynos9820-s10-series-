@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
       # Run once a week on Sunday at midnight. See http://crontab.guru
-      - cron: '0 6 */3 * *'
+      - cron: '0 6 */7 * *'
   push:
     branches:
       - HEAD
