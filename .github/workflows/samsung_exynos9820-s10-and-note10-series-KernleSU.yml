@@ -23,7 +23,7 @@ jobs:
       KERNEL_CMDLINE: "ARCH=arm64 CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- LLVM=1 LLVM_IAS=1 O=out"
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: 'true'
         fetch-depth: 100
@@ -71,7 +71,7 @@ jobs:
        cp out/arch/arm64/boot/Image.gz AnyKernel3
 
     - name: Upload Kernel 
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Kernel-lineage-20_s10e_exynos9820-beyond0lte-kernelsu-${{ steps.get_time.outputs.TIME }}
         path: "AnyKernel3/*"
@@ -91,7 +91,7 @@ jobs:
       
 
     - name: Upload Kernel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Kernel-lineage-20_s10_exynos9820-beyond1lte-kernelsu-${{ steps.get_time.outputs.TIME }}
         path: "AnyKernel3/*"
@@ -111,7 +111,7 @@ jobs:
 
 
     - name: Upload Kernel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Kernel-lineage-20_s10+_exynos9820-beyond2lte-kernelsu-${{ steps.get_time.outputs.TIME }}
         path: "AnyKernel3/*"
@@ -131,7 +131,7 @@ jobs:
 
 
     - name: Upload Kernel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Kernel-lineage-20_s10-5G_exynos9820-beyondx-kernelsu-${{ steps.get_time.outputs.TIME }}
         path: "AnyKernel3/*"
@@ -150,7 +150,7 @@ jobs:
 
 
     - name: Upload Kernel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Kernel-lineage-20_note10_exynos9820-d1-kernelsu-${{ steps.get_time.outputs.TIME }}
         path: "AnyKernel3/*"
@@ -169,7 +169,7 @@ jobs:
 
 
     - name: Upload Kernel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with: 
         name: Kernel-lineage-20_note10+_exynos9820-d2s-kernelsu-${{ steps.get_time.outputs.TIME }}
         path: "AnyKernel3/*"
@@ -188,7 +188,7 @@ jobs:
 
 
     - name: Upload Kernel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: Kernel-lineage-20_note10+-5G_exynos9820-d2x-kernelsu-${{ steps.get_time.outputs.TIME }}
         path: "AnyKernel3/*"
